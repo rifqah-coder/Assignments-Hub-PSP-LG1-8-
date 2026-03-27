@@ -64,11 +64,15 @@ st.title("🎯 Assignment Hub")
 
 form_label = "✏️ Edit Mode" if st.session_state.editing_index is not None else "➕ Add New Task"
 with st.expander(form_label, expanded=(st.session_state.editing_index is not None)):
-    curr = st.session_state.assignments[
-        st.session_state.editing_index] if st.session_state.editing_index is not None else {"title": "", "course": "",
-                                                                                            "group": "",
-                                                                                            "date": date.today(),
-                                                                                            "marks": 10, "desc": ""}
+    if st.session_state.editing_index is not None and st.session_state.editing_index < len(
+            st.session_state.assignments):
+        curr = st.session_state.assignments[st.session_state.editing_index]
+    else:
+        st.session_state.editing_index = None  # Reset if out of range
+        curr = {"title": "", "course": "",
+                "group": "",
+                "date": date.today(),
+                "marks": 10, "desc": ""}
 
     t_col, c_col = st.columns([2, 1])
     title = t_col.text_input("Assignment Title", value=curr['title'])
@@ -141,8 +145,9 @@ else:
                     st.session_state.editing_index = idx
                     st.rerun()
             with del_col:
-                if st.button("🗑️", key=f"del_{idx}"):
+                 if st.button("🗑️", key=f"del_{idx}"):
                     st.session_state.assignments.pop(idx)
+                    st.session_state.editing_index = None
                     st.rerun()
 
             with st.expander("Show Detailed Description"):
